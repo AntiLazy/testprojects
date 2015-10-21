@@ -1,5 +1,6 @@
 package com.android.activity;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,9 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
     private float previewRate = 16f/9f;
     private ImageView imageView;
     private TextView timeteTextView;
+    /**
+     * 前后摄像头切换按钮
+     */
     private ImageButton buttonCameraSwitch;
     private Handler myCameraHandler;
     private final static int START_PREVIEW = 1;
@@ -62,6 +66,7 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
     private String videoPath;
     private boolean isFrontCamera = false;
     private int cameraId = 0;
+    private String lastPicturePath = null;
     
     /**
      * Camera的模式，0为拍照模式，1为录像模式，2为正在录制。
@@ -88,7 +93,15 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFormat(PixelFormat.TRANSLUCENT);
         setContentView(R.layout.activity_main);
-        surfaceView = (CameraSurfaceView)this.findViewById(R.id.camera_surfaceview);
+        
+        init();
+    }
+    
+    /**
+     * 初始化控件和图标，为控件添加监听
+     */
+    private void init() {
+    	surfaceView = (CameraSurfaceView)this.findViewById(R.id.camera_surfaceview);
         imageButton = (ImageButton)this.findViewById(R.id.btn_shutter);
         imageView = (ImageView)this.findViewById(R.id.imageView1);
         buttonSwitch = (Switch)this.findViewById(R.id.switch1);
@@ -120,6 +133,7 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
                myCameraHandler.sendEmptyMessage(START_PREVIEW);
             }
         });
+        //TODO 显示时间，待做
         timeteTextView = (TextView)this.findViewById(R.id.timeTextView);
         //获得相机状态
         this.cameraStatus = buttonSwitch.isChecked() ? 0 : 1;
@@ -128,7 +142,28 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
         imageButton.setOnClickListener(this);
         imageView.setOnClickListener(this);
         myCameraHandler = new MyCameraHandler();
-        StorageUtil.getStoragePath();
+        initLastPicturePath();
+        if(this.lastPicturePath != null) {
+        	imageView.setImageBitmap(BitmapFactory.decodeFile(this.lastPicturePath));
+        }
+    }
+    /**
+     * 初始化左下角的图片，使之为最近拍摄的最新的图片
+     */
+    private void initLastPicturePath() {
+    	if(this.lastPicturePath == null) {
+    		 String path = StorageUtil.getStoragePath();
+    	        File[] files = new File(path).listFiles();
+    	        for(int index = files.length - 1;index >= 0;index--){
+    	        	String fileName = files[index].getName();
+    	        	Log.d("zejia.ye", "fileName = "+fileName);
+    	        	if(fileName.endsWith(".jpg")
+    	        			||fileName.endsWith(".png")||fileName.endsWith(".3gp")) {
+    	        		this.lastPicturePath = files[index].getAbsolutePath();
+    	        		break;
+    	        	}
+    	        }
+    	}
     }
     
     @Override
@@ -190,8 +225,8 @@ public class CameraActivity extends Activity implements OnClickListener,MediaRec
            if(parameters.getSupportedAntibanding().contains(Parameters.ANTIBANDING_AUTO))
                parameters.setAntibanding(Parameters.ANTIBANDING_AUTO);
            Log.d("zejia.ye", "antibangding = "+parameters.getAntibanding()+"  FlashMode="+parameters.getFlashMode());
-               parameters.setPreviewSize(1216, 800);
-               parameters.setPictureSize(1216, 800);
+               parameters.setPreviewSize(1600, 912);
+               parameters.setPictureSize(1600, 912);
            //List<String> focusModeStrings = parameters.getSupporteFocusModes();
 //               parameters.setRotation(90);
                parameters.setRotation((this.getOrientation()));

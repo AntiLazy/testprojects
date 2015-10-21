@@ -107,7 +107,8 @@ public class PictureGallery extends Activity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "gallery imageview is clicked!");
-                    Intent intent = new Intent(PictureGallery.this, PictureUI.class);
+//                    Intent intent = new Intent(PictureGallery.this, PictureUI.class);
+                    Intent intent = new Intent(PictureGallery.this, PicturePages.class);
                     intent.putExtra("picturePath", imageView.getTag().toString());
                     intent.putExtra("position", index);
                     intent.putExtra("pictures", pictureList);
