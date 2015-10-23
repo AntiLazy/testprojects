@@ -17,15 +17,22 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
-public class PicturePages extends Activity{
+public class PicturePages extends Activity {
 
 	private ViewPager picturePages;
+	/**
+	 * 图片绝对地址集合
+	 */
 	private ArrayList<String> pictureList;
+	/**
+	 * viewPage 页面集合，布局看activity_picture
+	 */
 	private ArrayList<View> pictureViews;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +57,7 @@ public class PicturePages extends Activity{
 		
 	}
 	/**
-	 * 初始化显示的imageview
+	 * 初始化显示的ViewPage单元界面，将界面集合存储于pictureViews中
 	 */
 	public void initViews() {
 		this.pictureViews = new ArrayList<View>();
@@ -58,11 +65,37 @@ public class PicturePages extends Activity{
 			View view = LayoutInflater.from(this).inflate(R.layout.activity_picture, null);
 			ImageView imageView = (ImageView)view.findViewById(R.id.pictureImageView);
 			imageView.setScaleType(ScaleType.CENTER_CROP);
-			ImageButton imageButton = (ImageButton)findViewById(R.id.imageButton1);
+			ImageButton imageEditButton = (ImageButton)view.findViewById(R.id.image_edit);
 			imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+			imageEditButton.setOnClickListener(new EditClick(picturePath));
 			this.pictureViews.add(view);
 		}
 	}
+	
+	class EditClick implements View.OnClickListener {
+		/**
+		 * 编辑的图片地址
+		 */
+		private String editedPicturePathString ;
+		
+		public EditClick(String editedPicturePath) {
+			this.editedPicturePathString = editedPicturePath;
+		}
+		
+		@Override
+		public void onClick(View v) {
+			Intent intent = new Intent(PicturePages.this, PictureEditActivity.class);
+			//将图片地址作参数传递到编辑界面
+			intent.putExtra("picturePath", this.editedPicturePathString);
+			startActivity(intent);
+		}
+		
+	}
+	/**
+	 * 页面适配器
+	 * @author zejia.ye
+	 *
+	 */
 	public class PicturePageAdapter extends PagerAdapter {
 		
 		Context context;
